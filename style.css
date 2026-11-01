@@ -751,6 +751,23 @@ footer {
         max-width: 650px;
     }
 }
+    #selected-player-info button {
+    background: #a50044;
+    padding: 8px 15px;
+    border-radius: 7px;
+    color: white;
+    font-family: inherit;
+    margin-right: 10px;
+}
+
+#assignment-list {
+    margin-top: 20px;
+}
+
+#assignment-list .player-card {
+    width: 100%;
+    cursor: pointer;
+    }
 
     .competition-grid button {
         min-height: 75px;
