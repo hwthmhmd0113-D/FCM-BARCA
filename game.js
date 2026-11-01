@@ -890,11 +890,40 @@ function renderTraining() {
 }
 
 function trainPlayer() {
-
     const id = Number(document.getElementById("training-player").value);
-
     const skill = document.getElementById("training-skill").value;
 
     const player = game.players.find(p => p.id === id);
 
-    if 
+    if (!player) {
+        alert("لم يتم العثور على اللاعب");
+        return;
+    }
+
+    if (game.coins < 50) {
+        alert("لا تملك عملات كافية للتدريب");
+        return;
+    }
+
+    game.coins -= 50;
+    player[skill] = Math.min(99, (player[skill] || 0) + 2);
+
+    saveGame();
+    renderAll();
+
+    alert("تم تطوير مهارة " + player.name + " بنجاح!");
+}
+
+// تشغيل اللعبة
+document.addEventListener("DOMContentLoaded", function () {
+    loadGame();
+    renderAll();
+
+    setTimeout(function () {
+        const loading = document.getElementById("loading-screen");
+
+        if (loading) {
+            loading.style.display = "none";
+        }
+    }, 2000);
+});
