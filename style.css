@@ -581,6 +581,176 @@ footer {
     .menu {
         margin-top: 14px;
     }
+    /* =========================
+   FCM BARCA TACTICAL PITCH
+========================= */
+
+.tactical-section {
+    margin-top: 25px;
+    background: #10223d;
+    padding: 18px;
+    border-radius: 15px;
+}
+
+.tactical-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tactical-header h2 {
+    color: #f5c542;
+}
+
+.formation-select {
+    background: #203959;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ffffff30;
+}
+
+.chemistry-box {
+    background: #203959;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chemistry-value {
+    color: #f5c542;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.pitch {
+    position: relative;
+    width: 100%;
+    max-width: 750px;
+    height: 420px;
+    margin: auto;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            #167c43,
+            #167c43 60px,
+            #116b39 60px,
+            #116b39 120px
+        );
+    border: 3px solid white;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.pitch::before {
+    content: "";
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border: 2px solid #ffffff90;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pitch::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: #ffffff90;
+    top: 50%;
+}
+
+.pitch-box {
+    position: absolute;
+    width: 42%;
+    height: 65px;
+    border: 2px solid #ffffff90;
+    left: 29%;
+}
+
+.pitch-box.top {
+    top: 0;
+    border-top: none;
+}
+
+.pitch-box.bottom {
+    bottom: 0;
+    border-bottom: none;
+}
+
+.pitch-slot {
+    position: absolute;
+    width: 72px;
+    min-height: 70px;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.pitch-player {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0755a5, #a50044);
+    border: 2px solid #f5c542;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 3px 10px #0008;
+}
+
+.pitch-slot span {
+    background: #07152e;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    margin-top: 3px;
+    white-space: nowrap;
+    max-width: 85px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pitch-slot.selected .pitch-player {
+    border: 3px solid white;
+    box-shadow: 0 0 15px #f5c542;
+}
+
+.pitch-slot.empty .pitch-player {
+    background: #ffffff25;
+    border: 2px dashed white;
+    font-size: 22px;
+}
+
+.pitch-instructions {
+    text-align: center;
+    color: #aabbd5;
+    font-size: 12px;
+    margin: 12px 0;
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .pitch {
+        height: 330px;
+        max-width: 650px;
+    }
+}
 
     .competition-grid button {
         min-height: 75px;
