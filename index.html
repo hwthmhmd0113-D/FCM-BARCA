@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#07152e">
+    <title>FCM BARCA - BY HWTA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="loading-screen">
+    <div class="loading-content">
+        <h1>FCM <span>BARCA</span></h1>
+        <div class="loader"></div>
+        <p>FOOTBALL CAREER MANAGER</p>
+        <small>CREATED BY HWTA</small>
+    </div>
+</div>
+
+<div id="game">
+
+    <header class="top-bar">
+        <div class="logo">FCM <span>BARCA</span></div>
+        <div class="club-name">🔵🔴 FC BARCELONA</div>
+        <div class="coins">🪙 <span id="coins">1000000</span></div>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <div class="hero-content">
+                <p>MES QUE UN CLUB</p>
+                <h1>FC BARCELONA</h1>
+                <h2>2026 / 2027</h2>
+                <button onclick="openPage('squad')">إدارة الفريق</button>
+            </div>
+        </section>
+
+        <section class="competitions">
+            <h2>البطولات</h2>
+
+            <div class="competition-grid">
+                <button onclick="openPage('laliga')">
+                    🏆
+                    <span>الدوري الإسباني</span>
+                </button>
+
+                <button onclick="openPage('ucl')">
+                    🌟
+                    <span>دوري أبطال أوروبا</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="menu">
+            <h2>إدارة النادي</h2>
+
+            <div class="menu-grid">
+                <button onclick="openPage('squad')">👥<span>التشكيلة</span></button>
+                <button onclick="openPage('transfers')">🔄<span>الانتقالات</span></button>
+                <button onclick="openPage('academy')">🌱<span>الأكاديمية</span></button>
+                <button onclick="openPage('training')">⚽<span>التدريب</span></button>
+                <button onclick="openPage('rewards')">🏅<span>الجوائز</span></button>
+                <button onclick="openPage('coupons')">🎁<span>القسائم</span></button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        FCM BARCA © 2026
+        <br>
+        DEVELOPED BY HWTA
+    </footer>
+
+</div>
+
+<div id="page-screen" class="hidden">
+    <button class="back-button" onclick="goHome()">← العودة</button>
+    <h1 id="page-title"></h1>
+    <div id="page-content"></div>
+</div>
+
+<script src="game.js"></script>
+
+</body>
+  </html>
