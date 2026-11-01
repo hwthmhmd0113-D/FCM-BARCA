@@ -525,7 +525,6 @@ footer {
     .players-grid {
         grid-template-columns: repeat(6, minmax(110px, 1fr));
     }
-
 }
 
 /* SMALL SCREENS */
@@ -557,7 +556,6 @@ footer {
     .player-card {
         min-height: 190px;
     }
-
 }
 
 /* LANDSCAPE PHONE */
@@ -581,7 +579,17 @@ footer {
     .menu {
         margin-top: 14px;
     }
-    /* =========================
+
+    .competition-grid button {
+        min-height: 75px;
+    }
+
+    .menu-grid button {
+        min-height: 70px;
+    }
+}
+
+/* =========================
    FCM BARCA TACTICAL PITCH
 ========================= */
 
@@ -745,13 +753,9 @@ footer {
     margin: 12px 0;
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
-    .pitch {
-        height: 330px;
-        max-width: 650px;
-    }
-}
-    #selected-player-info button {
+/* SELECTED PLAYER */
+
+#selected-player-info button {
     background: #a50044;
     padding: 8px 15px;
     border-radius: 7px;
@@ -767,14 +771,14 @@ footer {
 #assignment-list .player-card {
     width: 100%;
     cursor: pointer;
-    }
+}
 
-    .competition-grid button {
-        min-height: 75px;
-    }
+/* LANDSCAPE PITCH */
 
-    .menu-grid button {
-        min-height: 70px;
-    }
+@media (max-height: 500px) and (orientation: landscape) {
 
+    .pitch {
+        height: 330px;
+        max-width: 650px;
+    }
     }
