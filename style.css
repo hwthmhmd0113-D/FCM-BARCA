@@ -30,6 +30,8 @@ button {
     color: white;
 }
 
+/* LOADING SCREEN */
+
 #loading-screen {
     position: fixed;
     inset: 0;
@@ -95,8 +97,11 @@ button {
     }
 }
 
+/* MAIN GAME */
+
 #game {
-    max-width: 1500px;
+    width: 100%;
+    max-width: 1600px;
     margin: auto;
     padding: 12px;
 }
@@ -133,15 +138,15 @@ button {
     font-weight: bold;
 }
 
+/* HERO */
+
 .hero {
     min-height: 280px;
     margin-top: 15px;
     border-radius: 15px;
     overflow: hidden;
     position: relative;
-    background:
-        linear-gradient(90deg, #06142be8, #06142b65),
-        linear-gradient(135deg, #092e65, #a50044);
+    background: linear-gradient(120deg, #06142b, #092e65, #71002d);
     display: flex;
     align-items: center;
     padding: 35px;
@@ -186,12 +191,9 @@ button {
     font-weight: 900;
     padding: 12px 30px;
     border-radius: 7px;
-    transition: .2s;
 }
 
-.hero-content button:active {
-    transform: scale(.95);
-}
+/* COMPETITIONS */
 
 .competitions,
 .menu {
@@ -234,6 +236,8 @@ button {
     font-size: 14px;
 }
 
+/* MAIN MENU */
+
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -271,6 +275,8 @@ footer {
     font-size: 12px;
 }
 
+/* PAGES */
+
 #page-screen {
     position: fixed;
     inset: 0;
@@ -297,45 +303,7 @@ footer {
     margin-bottom: 20px;
 }
 
-@media (orientation: landscape) {
-    #game {
-        padding: 10px 25px;
-    }
-
-    .hero {
-        min-height: 220px;
-    }
-
-    .menu-grid {
-        grid-template-columns: repeat(6, 1fr);
-    }
-
-    .competition-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .club-name {
-        font-size: 10px;
-    }
-
-    .logo {
-        font-size: 17px;
-    }
-
-    .top-bar {
-        padding: 10px;
-    }
-
-    .coins {
-        font-size: 11px;
-        padding: 6px 9px;
-    }
-  }
-/* =========================
-   FCM BARCA PLAYER CARDS
-========================= */
+/* SQUAD */
 
 .squad-header {
     background: linear-gradient(120deg, #092c60, #a50044);
@@ -351,7 +319,7 @@ footer {
 }
 
 .squad-header p {
-    color: #f5c542;
+    color: var(--gold);
     font-size: 12px;
     letter-spacing: 2px;
 }
@@ -373,14 +341,13 @@ footer {
 
 .position-filters button {
     background: #192e50;
-    border: 1px solid #ffffff25;
     padding: 9px 20px;
     border-radius: 20px;
     font-weight: bold;
 }
 
 .position-filters button:active {
-    background: #a50044;
+    background: var(--red);
 }
 
 .players-grid {
@@ -389,6 +356,8 @@ footer {
     gap: 14px;
 }
 
+/* PLAYER CARDS */
+
 .player-card {
     position: relative;
     min-height: 205px;
@@ -396,12 +365,7 @@ footer {
     text-align: center;
     border-radius: 12px;
     overflow: hidden;
-    background: linear-gradient(
-        155deg,
-        #f1d99a,
-        #b58a3d,
-        #49351e
-    );
+    background: linear-gradient(155deg, #f1d99a, #b58a3d, #49351e);
     border: 2px solid #f5d58b;
     color: #17213a;
     transition: .2s;
@@ -424,7 +388,6 @@ footer {
 .player-rating small {
     display: block;
     font-size: 11px;
-    text-align: center;
 }
 
 .player-image {
@@ -469,6 +432,8 @@ footer {
     color: #263b1e;
 }
 
+/* PLAYER DETAILS */
+
 .player-details {
     max-width: 550px;
     margin: auto;
@@ -482,7 +447,7 @@ footer {
 .player-rating-large {
     font-size: 65px;
     font-weight: 900;
-    color: #f5c542;
+    color: var(--gold);
 }
 
 .player-rating-large span {
@@ -521,7 +486,7 @@ footer {
 
 .player-stats strong {
     display: block;
-    color: #f5c542;
+    color: var(--gold);
     font-size: 18px;
 }
 
@@ -536,35 +501,54 @@ footer {
     font-weight: bold;
 }
 
-@media (max-width: 600px) {
-    /* LANDSCAPE GAME MODE */
-
-@media (orientation: portrait) {
-    body {
-        width: 100vh;
-        height: 100vw;
-        overflow: hidden;
-        position: fixed;
-        top: 0;
-        left: 100vw;
-        transform-origin: top left;
-        transform: rotate(90deg);
-    }
-
-    #game,
-    #page-screen {
-        width: 100%;
-        min-height: 100%;
-    }
-}
+/* LANDSCAPE DESIGN */
 
 @media (orientation: landscape) {
-    body {
-        width: 100%;
-        min-height: 100vh;
-        overflow-x: hidden;
+
+    #game {
+        padding: 10px 25px;
     }
+
+    .hero {
+        min-height: 200px;
+        padding: 25px 40px;
+    }
+
+    .competition-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .players-grid {
+        grid-template-columns: repeat(6, minmax(110px, 1fr));
+    }
+
 }
+
+/* SMALL SCREENS */
+
+@media (max-width: 600px) {
+
+    .club-name {
+        font-size: 10px;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .top-bar {
+        padding: 10px;
+    }
+
+    .coins {
+        font-size: 11px;
+        padding: 6px 9px;
+    }
+
     .players-grid {
         grid-template-columns: repeat(3, minmax(95px, 1fr));
         gap: 9px;
@@ -573,4 +557,37 @@ footer {
     .player-card {
         min-height: 190px;
     }
+
 }
+
+/* LANDSCAPE PHONE */
+
+@media (orientation: landscape) and (max-height: 500px) {
+
+    #game {
+        padding: 8px 18px;
+    }
+
+    .top-bar {
+        padding: 7px 15px;
+    }
+
+    .hero {
+        min-height: 150px;
+        margin-top: 8px;
+    }
+
+    .competitions,
+    .menu {
+        margin-top: 14px;
+    }
+
+    .competition-grid button {
+        min-height: 75px;
+    }
+
+    .menu-grid button {
+        min-height: 70px;
+    }
+
+    }
