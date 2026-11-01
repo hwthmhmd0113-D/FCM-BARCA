@@ -537,6 +537,34 @@ footer {
 }
 
 @media (max-width: 600px) {
+    /* LANDSCAPE GAME MODE */
+
+@media (orientation: portrait) {
+    body {
+        width: 100vh;
+        height: 100vw;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 100vw;
+        transform-origin: top left;
+        transform: rotate(90deg);
+    }
+
+    #game,
+    #page-screen {
+        width: 100%;
+        min-height: 100%;
+    }
+}
+
+@media (orientation: landscape) {
+    body {
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+}
     .players-grid {
         grid-template-columns: repeat(3, minmax(95px, 1fr));
         gap: 9px;
