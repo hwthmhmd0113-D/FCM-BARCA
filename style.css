@@ -772,6 +772,90 @@ footer {
     width: 100%;
     cursor: pointer;
 }
+/* FIT TACTICAL SCREEN ON LANDSCAPE PHONE */
+
+@media (orientation: landscape) and (max-height: 500px) {
+
+    #page-screen {
+        padding: 8px 15px;
+    }
+
+    #page-title {
+        margin-bottom: 8px;
+        font-size: 18px;
+    }
+
+    .back-button {
+        padding: 5px 15px;
+        margin-bottom: 8px;
+    }
+
+    .squad-header {
+        padding: 8px 15px;
+        margin-bottom: 8px;
+    }
+
+    .squad-header h2 {
+        font-size: 19px;
+    }
+
+    .squad-header p {
+        font-size: 9px;
+    }
+
+    .squad-info {
+        margin-top: 4px;
+        font-size: 10px;
+    }
+
+    .tactical-section {
+        margin-top: 8px;
+        padding: 8px;
+    }
+
+    .tactical-header {
+        margin-bottom: 5px;
+    }
+
+    .tactical-header h2 {
+        font-size: 15px;
+    }
+
+    .chemistry-box {
+        padding: 5px 10px;
+        margin-bottom: 6px;
+        font-size: 11px;
+    }
+
+    .chemistry-value {
+        font-size: 16px;
+    }
+
+    .pitch {
+        height: 245px;
+        max-width: 600px;
+    }
+
+    .pitch-player {
+        width: 34px;
+        height: 34px;
+        font-size: 10px;
+    }
+
+    .pitch-slot {
+        width: 55px;
+        min-height: 48px;
+    }
+
+    .pitch-slot span {
+        font-size: 8px;
+    }
+
+    .pitch-instructions {
+        margin: 5px 0;
+        font-size: 9px;
+    }
+}
 
 /* LANDSCAPE PITCH */
 
