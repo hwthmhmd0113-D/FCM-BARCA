@@ -1,7 +1,7 @@
-// ======================================
-// FCM BARCA
+// =====================================
+// FCM BARCA - TACTICAL ENGINE
 // DEVELOPED BY HWTA
-// ======================================
+// =====================================
 
 const gameData = {
     club: "FC Barcelona",
@@ -22,13 +22,44 @@ const pages = {
     coupons: "قسائم الحظ"
 };
 
-// فتح الصفحات
+// التشكيلة الأساسية
+let lineup = [
+    1, 5, 7, 11, 8,
+    22, 15, 18,
+    14, 20, 21
+];
+
+// مراكز اللاعبين في الملعب
+const pitchPositions = [
+    {x:50, y:90, role:"GK"},
+    {x:18, y:70, role:"LB"},
+    {x:39, y:73, role:"CB"},
+    {x:61, y:73, role:"CB"},
+    {x:82, y:70, role:"RB"},
+
+    {x:25, y:48, role:"CM"},
+    {x:50, y:43, role:"CM"},
+    {x:75, y:48, role:"CM"},
+
+    {x:18, y:20, role:"LW"},
+    {x:50, y:14, role:"ST"},
+    {x:82, y:20, role:"RW"}
+];
+
+let selectedSlot = null;
+
+// =====================================
+// NAVIGATION
+// =====================================
+
 function openPage(page) {
+
     if (!pages[page]) return;
 
     gameData.currentPage = page;
 
     document.getElementById("game").classList.add("hidden");
+
     document.getElementById("page-screen").classList.remove("hidden");
 
     document.getElementById("page-title").textContent = pages[page];
@@ -36,18 +67,21 @@ function openPage(page) {
     renderPage(page);
 }
 
-// العودة للرئيسية
 function goHome() {
+
     gameData.currentPage = "home";
 
     document.getElementById("page-screen").classList.add("hidden");
+
     document.getElementById("game").classList.remove("hidden");
+
 }
 
-// عرض الصفحات
-function renderPage(page) {
+// =====================================
+// PAGE RENDERING
+// =====================================
 
-    const content = document.getElementById("page-content");
+function renderPage(page) {
 
     if (page === "squad") {
         renderSquad();
@@ -58,13 +92,13 @@ function renderPage(page) {
         laliga: "الدوري الإسباني 2026-2027",
         ucl: "دوري أبطال أوروبا",
         transfers: "سوق انتقالات اللاعبين",
-        academy: "اكتشاف وتطوير المواهب",
-        training: "تطوير مهارات اللاعبين",
+        academy: "أكاديمية برشلونة",
+        training: "مركز التدريب",
         rewards: "جوائز الموسم",
         coupons: "عجلة الحظ والأساطير"
     };
 
-    content.innerHTML = `
+    document.getElementById("page-content").innerHTML = `
         <div class="section-card">
             <h2>${pages[page]}</h2>
             <p>${descriptions[page]}</p>
@@ -75,44 +109,323 @@ function renderPage(page) {
     `;
 }
 
-// عرض تشكيلة برشلونة
+// =====================================
+// SQUAD
+// =====================================
+
 function renderSquad() {
 
     const content = document.getElementById("page-content");
 
-    const positions = [
-        "ALL",
-        "GK",
-        "DEF",
-        "MID",
-        "ATT"
-    ];
-
     content.innerHTML = `
+
         <div class="squad-header">
+
             <h2>FC BARCELONA</h2>
+
             <p>FIRST TEAM | 2026/27</p>
+
             <div class="squad-info">
                 <span>👥 ${barcaPlayers.length} لاعب</span>
                 <span>🪙 ${gameData.coins.toLocaleString()}</span>
             </div>
+
         </div>
 
+        <div class="tactical-section">
+
+            <div class="tactical-header">
+
+                <h2>⚽ الخطة التكتيكية</h2>
+
+                <span>4-3-3</span>
+
+            </div>
+
+            <div class="chemistry-box">
+
+                <span>تناغم الفريق</span>
+
+                <span class="chemistry-value" id="chemistry-value">
+                    0
+                </span>
+
+            </div>
+
+            <div class="pitch" id="pitch">
+
+                <div class="pitch-box top"></div>
+                <div class="pitch-box bottom"></div>
+
+            </div>
+
+            <p class="pitch-instructions">
+                اضغط على لاعب ثم اضغط على لاعب آخر لتبديل مركزيهما.
+            </p>
+
+            <div id="selected-player-info"></div>
+
+            <div id="assignment-list"></div>
+
+        </div>
+
+        <h2 style="margin:25px 0 15px;color:#f5c542">
+            قائمة لاعبي برشلونة
+        </h2>
+
         <div class="position-filters">
-            ${positions.map(pos => `
-                <button onclick="filterPlayers('${pos}')">
-                    ${pos}
-                </button>
-            `).join("")}
+
+            <button onclick="filterPlayers('ALL')">الكل</button>
+            <button onclick="filterPlayers('GK')">الحراس</button>
+            <button onclick="filterPlayers('DEF')">الدفاع</button>
+            <button onclick="filterPlayers('MID')">الوسط</button>
+            <button onclick="filterPlayers('ATT')">الهجوم</button>
+
         </div>
 
         <div id="players-grid" class="players-grid"></div>
+
     `;
 
+    renderPitch();
     filterPlayers("ALL");
+    calculateChemistry();
 }
 
-// تصنيف اللاعبين
+// =====================================
+// PITCH
+// =====================================
+
+function renderPitch() {
+
+    const pitch = document.getElementById("pitch");
+
+    if (!pitch) return;
+
+    pitch.querySelectorAll(".pitch-slot").forEach(el => el.remove());
+
+    pitchPositions.forEach((position, index) => {
+
+        const player = barcaPlayers.find(
+            p => p.id === lineup[index]
+        );
+
+        const slot = document.createElement("div");
+
+        slot.className = "pitch-slot";
+
+        if (selectedSlot === index) {
+            slot.classList.add("selected");
+        }
+
+        slot.style.left = position.x + "%";
+        slot.style.top = position.y + "%";
+
+        slot.innerHTML = `
+
+            <div class="pitch-player">
+                ${player ? player.overall : "+"}
+            </div>
+
+            <span>
+                ${player ? player.name.split(" ").slice(-1)[0] : "فارغ"}
+            </span>
+
+        `;
+
+        slot.onclick = () => selectPitchPlayer(index);
+
+        pitch.appendChild(slot);
+
+    });
+
+}
+
+// =====================================
+// SELECT AND SWAP PLAYERS
+// =====================================
+
+function selectPitchPlayer(index) {
+
+    if (selectedSlot === null) {
+
+        selectedSlot = index;
+
+        const player = barcaPlayers.find(
+            p => p.id === lineup[index]
+        );
+
+        document.getElementById("selected-player-info").innerHTML = `
+            <div class="chemistry-box">
+                اللاعب المحدد: ${player ? player.name : "مركز فارغ"}
+                <button onclick="showAssignmentList()">
+                    تغيير اللاعب
+                </button>
+            </div>
+        `;
+
+    } else if (selectedSlot === index) {
+
+        selectedSlot = null;
+
+        document.getElementById("selected-player-info").innerHTML = "";
+
+    } else {
+
+        const temp = lineup[selectedSlot];
+
+        lineup[selectedSlot] = lineup[index];
+
+        lineup[index] = temp;
+
+        selectedSlot = null;
+
+        document.getElementById("selected-player-info").innerHTML = "";
+
+        saveGame();
+
+    }
+
+    renderPitch();
+    calculateChemistry();
+
+}
+
+// =====================================
+// ASSIGN NEW PLAYER
+// =====================================
+
+function showAssignmentList() {
+
+    if (selectedSlot === null) return;
+
+    const box = document.getElementById("assignment-list");
+
+    box.innerHTML = `
+
+        <h3 style="margin:15px 0;color:#f5c542">
+            اختر اللاعب البديل
+        </h3>
+
+        <div class="players-grid">
+
+            ${barcaPlayers.map(player => `
+
+                <button class="player-card"
+                    onclick="assignPlayer(${player.id})">
+
+                    <div class="player-rating">
+                        ${player.overall}
+                    </div>
+
+                    <div class="player-image">
+                        <span>
+                            ${player.name.substring(0,2)}
+                        </span>
+                    </div>
+
+                    <div class="player-name">
+                        ${player.name}
+                    </div>
+
+                    <div class="player-number">
+                        ${player.position}
+                    </div>
+
+                </button>
+
+            `).join("")}
+
+        </div>
+
+    `;
+
+}
+
+function assignPlayer(id) {
+
+    if (selectedSlot === null) return;
+
+    const existingIndex = lineup.indexOf(id);
+
+    if (existingIndex !== -1) {
+
+        const temp = lineup[selectedSlot];
+
+        lineup[selectedSlot] = lineup[existingIndex];
+
+        lineup[existingIndex] = temp;
+
+    } else {
+
+        lineup[selectedSlot] = id;
+
+    }
+
+    selectedSlot = null;
+
+    document.getElementById("assignment-list").innerHTML = "";
+
+    document.getElementById("selected-player-info").innerHTML = "";
+
+    renderPitch();
+
+    calculateChemistry();
+
+    saveGame();
+
+}
+
+// =====================================
+// CHEMISTRY
+// =====================================
+
+function calculateChemistry() {
+
+    let total = 0;
+
+    lineup.forEach((id, index) => {
+
+        const player = barcaPlayers.find(p => p.id === id);
+
+        if (!player) return;
+
+        const role = pitchPositions[index].role;
+
+        if (player.position === role) {
+            total += 10;
+        }
+
+        else if (
+            (role === "CM" && ["CDM","CAM"].includes(player.position)) ||
+            (role === "CB" && ["LB","RB"].includes(player.position)) ||
+            (role === "ST" && ["CF","LW","RW"].includes(player.position)) ||
+            (role === "LW" && player.position === "RW") ||
+            (role === "RW" && player.position === "LW")
+        ) {
+            total += 7;
+        }
+
+        else {
+            total += 3;
+        }
+
+    });
+
+    gameData.chemistry = Math.round(total / 11);
+
+    const element = document.getElementById("chemistry-value");
+
+    if (element) {
+        element.textContent = gameData.chemistry + "/100";
+    }
+
+}
+
+// =====================================
+// PLAYER FILTERS
+// =====================================
+
 function filterPlayers(position) {
 
     let players = barcaPlayers;
@@ -123,19 +436,19 @@ function filterPlayers(position) {
 
     if (position === "DEF") {
         players = players.filter(p =>
-            ["CB", "LB", "RB", "LWB", "RWB"].includes(p.position)
+            ["CB","LB","RB"].includes(p.position)
         );
     }
 
     if (position === "MID") {
         players = players.filter(p =>
-            ["CM", "CDM", "CAM"].includes(p.position)
+            ["CM","CDM","CAM"].includes(p.position)
         );
     }
 
     if (position === "ATT") {
         players = players.filter(p =>
-            ["ST", "LW", "RW", "CF"].includes(p.position)
+            ["ST","LW","RW","CF"].includes(p.position)
         );
     }
 
@@ -146,7 +459,7 @@ function filterPlayers(position) {
     grid.innerHTML = players.map(player => `
 
         <div class="player-card"
-             onclick="showPlayer(${player.id})">
+            onclick="showPlayer(${player.id})">
 
             <div class="player-rating">
                 ${player.overall}
@@ -154,7 +467,9 @@ function filterPlayers(position) {
             </div>
 
             <div class="player-image">
-                <span>${player.name.split(" ").map(n => n[0]).join("").slice(0,2)}</span>
+                <span>
+                    ${player.name.substring(0,2)}
+                </span>
             </div>
 
             <div class="player-number">
@@ -172,18 +487,20 @@ function filterPlayers(position) {
         </div>
 
     `).join("");
+
 }
 
-// تفاصيل اللاعب
+// =====================================
+// PLAYER DETAILS
+// =====================================
+
 function showPlayer(id) {
 
     const player = barcaPlayers.find(p => p.id === id);
 
     if (!player) return;
 
-    const content = document.getElementById("page-content");
-
-    content.innerHTML = `
+    document.getElementById("page-content").innerHTML = `
 
         <button class="back-button" onclick="renderSquad()">
             ← العودة للتشكيلة
@@ -214,64 +531,75 @@ function showPlayer(id) {
 
                 <div>
                     <span>القيمة السوقية</span>
-                    <strong>€${(player.value / 1000000).toFixed(1)}M</strong>
+                    <strong>€${(player.value/1000000).toFixed(1)}M</strong>
                 </div>
 
             </div>
 
-            <div class="player-actions">
-                <button onclick="addToLineup(${player.id})">
-                    إضافة للتشكيلة
-                </button>
-            </div>
-
         </div>
+
     `;
-}
-
-// إضافة اللاعب للتشكيلة
-function addToLineup(id) {
-
-    const player = barcaPlayers.find(p => p.id === id);
-
-    alert("تم اختيار " + player.name);
 
 }
 
-// الحفظ
+// =====================================
+// SAVE SYSTEM
+// =====================================
+
 function saveGame() {
+
     localStorage.setItem(
         "FCM_BARCA_SAVE",
         JSON.stringify({
             coins: gameData.coins,
-            chemistry: gameData.chemistry
+            chemistry: gameData.chemistry,
+            lineup: lineup
         })
     );
+
 }
 
-// التحميل
 function loadGame() {
 
     try {
+
         const saved = JSON.parse(
             localStorage.getItem("FCM_BARCA_SAVE")
         );
 
         if (saved) {
+
             gameData.coins = saved.coins ?? 1000000;
+
             gameData.chemistry = saved.chemistry ?? 0;
+
+            if (
+                Array.isArray(saved.lineup) &&
+                saved.lineup.length === 11 &&
+                saved.lineup.every(id =>
+                    barcaPlayers.some(p => p.id === id)
+                ) &&
+                new Set(saved.lineup).size === 11
+            ) {
+                lineup = saved.lineup;
+            }
+
         }
-    } catch (error) {
-        console.error("Save loading error:", error);
+
+    } catch(error) {
+
+        console.log("Save loading error", error);
+
     }
 
     document.getElementById("coins").textContent =
         gameData.coins.toLocaleString();
+
 }
 
 setInterval(saveGame, 5000);
 
 loadGame();
 
-console.log("FCM BARCA ENGINE READY");
+console.log("FCM BARCA TACTICAL ENGINE READY");
 console.log("DEVELOPED BY HWTA");
