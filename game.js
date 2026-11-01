@@ -1,12 +1,14 @@
-// ==========================================
-// FCM BARCA - GAME ENGINE
-// CREATED BY HWTA
-// ==========================================
+// ========================================
+// FCM BARCA
+// FOOTBALL CAREER MANAGER
+// DEVELOPED BY HWTA
+// ========================================
 
-// إعدادات الحفظ
+"use strict";
+
 const SAVE_KEY = "FCM_BARCA_HWTA_V1";
 
-// بيانات الفرق
+// فرق الدوري الإسباني
 const laLigaTeams = [
     "Real Madrid",
     "Atletico Madrid",
@@ -29,6 +31,7 @@ const laLigaTeams = [
     "Real Oviedo"
 ];
 
+// فرق دوري الأبطال
 const uclTeams = [
     "Manchester City",
     "Real Madrid",
@@ -44,9 +47,37 @@ const uclTeams = [
     "Chelsea"
 ];
 
-// اللاعبين
+// التشكيلات
+const formations = {
+    "4-3-3": [
+        [50,90],[17,72],[39,77],[61,77],[83,72],
+        [32,50],[50,57],[68,50],
+        [17,20],[50,12],[83,20]
+    ],
+
+    "4-2-3-1": [
+        [50,90],[17,72],[39,77],[61,77],[83,72],
+        [38,57],[62,57],
+        [17,30],[50,32],[83,30],[50,12]
+    ],
+
+    "4-4-2": [
+        [50,90],[17,72],[39,77],[61,77],[83,72],
+        [17,48],[39,52],[61,52],[83,48],
+        [36,15],[64,15]
+    ],
+
+    "3-4-3": [
+        [50,90],[28,76],[50,78],[72,76],
+        [15,48],[38,53],[62,53],[85,48],
+        [20,17],[50,12],[80,17]
+    ]
+};
+
+// تجهيز اللاعبين
 const defaultPlayers = barcaPlayers.map((p, i) => ({
     ...p,
+    id: p.id || i + 1,
     starter: i < 11,
     goals: 0,
     assists: 0,
@@ -54,17 +85,20 @@ const defaultPlayers = barcaPlayers.map((p, i) => ({
 }));
 
 // بيانات اللعبة
-let game = {
+const initialGame = {
     coins: 500,
     energy: 100,
     coupons: 0,
+
     players: defaultPlayers,
+
     academy: [
-        {id: 101, name: "Iker Moreno", position: "CM", rating: 68, price: 2},
-        {id: 102, name: "Alex Ruiz", position: "ST", rating: 66, price: 2},
-        {id: 103, name: "Dani Costa", position: "CB", rating: 65, price: 2},
-        {id: 104, name: "Lucas Garcia", position: "RW", rating: 67, price: 3}
+        {id:101,name:"Iker Moreno",position:"CM",rating:68,price:2},
+        {id:102,name:"Alex Ruiz",position:"ST",rating:66,price:2},
+        {id:103,name:"Dani Costa",position:"CB",rating:65,price:2},
+        {id:104,name:"Lucas Garcia",position:"RW",rating:67,price:3}
     ],
+
     played: 0,
     wins: 0,
     draws: 0,
@@ -72,13 +106,30 @@ let game = {
     couponsClaimed: ""
 };
 
-let selectedPlayer = null;
+let game = JSON.parse(JSON.stringify(initialGame));
+
 let currentMatch = null;
 let matchMinute = 0;
+let selectedPlayer = null;
 let currentFormation = "4-3-3";
-let matchTimer = null;
 
-// تحميل الحفظ
+let marketPlayers = [
+    {name:"Jude Bellingham",position:"AM",rating:91,price:110},
+    {name:"Nico Williams",position:"LW",rating:87,price:75},
+    {name:"Erling Haaland",position:"ST",rating:92,price:140},
+    {name:"Florian Wirtz",position:"AM",rating:90,price:105},
+    {name:"Vitinha",position:"CM",rating:88,price:80},
+    {name:"William Saliba",position:"CB",rating:88,price:90},
+    {name:"Takefusa Kubo",position:"RW",rating:85,price:55},
+    {name:"Mikel Merino",position:"CM",rating:85,price:45},
+    {name:"Mohamed Salah",position:"RW",rating:89,price:60},
+    {name:"Bukayo Saka",position:"RW",rating:89,price:100}
+];
+
+// ========================================
+// حفظ وتحميل اللعبة
+// ========================================
+
 function loadGame() {
     try {
         const saved = localStorage.getItem(SAVE_KEY);
@@ -87,19 +138,37 @@ function loadGame() {
             const data = JSON.parse(saved);
 
             game = {
-                ...game,
+                ...initialGame,
                 ...data
             };
+
+            if (!Array.isArray(game.players)) {
+                game.players = JSON.parse(JSON.stringify(defaultPlayers));
+            }
+
+            if (!Array.isArray(game.academy)) {
+                game.academy = [];
+            }
         }
     } catch (error) {
-        console.log("Save loading error:", error);
+        console.error("Save error:", error);
+        game = JSON.parse(JSON.stringify(initialGame));
     }
 }
 
 function saveGame() {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(game));
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(game));
+    } catch (error) {
+        console.error("Save error:", error);
+    }
+
     updateResources();
 }
+
+// ========================================
+// الموارد
+// ========================================
 
 function updateResources() {
     const coins = document.getElementById("coins");
@@ -115,15 +184,61 @@ function updateResources() {
     if (rating) {
         rating.textContent = getTeamRating();
     }
-
-    const chemistryElement = document.getElementById("chemistry");
-
-    if (chemistryElement) {
-        chemistryElement.textContent = getChemistry() + "%";
-    }
 }
 
+// ========================================
+// تقييم الفريق والتناغم
+// ========================================
+
+function getTeamRating() {
+    const starters = game.players
+        .filter(p => p.starter)
+        .slice(0, 11);
+
+    if (!starters.length) return 0;
+
+    const total = starters.reduce(
+        (sum, player) => sum + Number(player.rating || 0),
+        0
+    );
+
+    return Math.round(total / starters.length);
+}
+
+function getChemistry() {
+    const starters = game.players
+        .filter(p => p.starter)
+        .slice(0, 11);
+
+    if (!starters.length) return 0;
+
+    let chemistry = 65;
+
+    const positions = starters.map(p => p.position);
+
+    if (positions.filter(p => p === "CM").length >= 2) {
+        chemistry += 8;
+    }
+
+    if (positions.filter(p => p === "CB").length >= 2) {
+        chemistry += 5;
+    }
+
+    if (positions.includes("ST")) {
+        chemistry += 5;
+    }
+
+    if (starters.length === 11) {
+        chemistry += 10;
+    }
+
+    return Math.min(99, chemistry);
+}
+
+// ========================================
 // التنقل بين الصفحات
+// ========================================
+
 function showPage(pageId) {
     document.querySelectorAll(".page").forEach(page => {
         page.classList.remove("active");
@@ -136,55 +251,24 @@ function showPage(pageId) {
     }
 
     renderAll();
-    window.scrollTo(0, 0);
 }
 
-// حساب قوة الفريق
-function getTeamRating() {
-    const starters = game.players.filter(p => p.starter);
+// ========================================
+// بطاقات اللاعبين
+// ========================================
 
-    if (!starters.length) return 0;
-
-    const total = starters.reduce((sum, p) => {
-        return sum + p.rating;
-    }, 0);
-
-    return Math.round(total / starters.length);
-}
-
-// حساب التناغم
-function getChemistry() {
-    const starters = game.players.filter(p => p.starter);
-
-    if (starters.length === 0) return 0;
-
-    let chemistry = 65;
-
-    const positions = starters.map(p => p.position);
-
-    const counts = {};
-
-    positions.forEach(pos => {
-        counts[pos] = (counts[pos] || 0) + 1;
-    });
-
-    if (counts.CM >= 2) chemistry += 8;
-    if (counts.CB >= 2) chemistry += 5;
-    if (counts.RW && counts.LW) chemistry += 5;
-    if (counts.ST) chemistry += 5;
-
-    if (starters.length === 11) chemistry += 10;
-
-    return Math.min(99, chemistry);
-}
-
-// عرض بطاقات اللاعبين
 function createPlayerCard(player, action = "") {
+    const initials = String(player.name || "?")
+        .split(" ")
+        .map(x => x[0])
+        .join("")
+        .slice(0, 2);
+
     return `
         <div class="player-card">
 
             <div class="player-photo">
-                ${player.name.split(" ").map(x => x[0]).join("").slice(0, 2)}
+                ${initials}
             </div>
 
             <div class="player-rating">
@@ -193,13 +277,11 @@ function createPlayerCard(player, action = "") {
 
             <h3>${player.name}</h3>
 
-            <p>
-                ${player.position}
-                |
-                ${player.price}M €
-            </p>
+            <p>${player.position}</p>
 
-            <p>الحالة: ${player.form || 7.0}</p>
+            <p>السعر: ${player.price}M €</p>
+
+            <p>التقييم: ${player.form || 7.0}</p>
 
             ${action}
 
@@ -207,7 +289,10 @@ function createPlayerCard(player, action = "") {
     `;
 }
 
-// عرض التشكيلة
+// ========================================
+// التشكيلة
+// ========================================
+
 function renderSquad() {
     const list = document.getElementById("players-list");
 
@@ -215,96 +300,46 @@ function renderSquad() {
 
     list.innerHTML = game.players.map(player => {
 
-        const action = player.starter
-            ? `<button onclick="removeFromLineup(${player.id})">إلى الدكة</button>`
-            : `<button onclick="addToLineup(${player.id})">إلى التشكيلة</button>`;
+        const button = player.starter
+            ? `<button onclick="removeFromLineup(${player.id})">
+                إلى الدكة
+               </button>`
+            : `<button onclick="addToLineup(${player.id})">
+                إلى التشكيلة
+               </button>`;
 
-        return createPlayerCard(player, action);
+        return createPlayerCard(player, button);
 
     }).join("");
 
     renderPitch();
 }
 
-// مواقع اللاعبين على الملعب
-const formations = {
-    "4-3-3": [
-        [50, 90],
-        [17, 72],
-        [39, 77],
-        [61, 77],
-        [83, 72],
-        [32, 50],
-        [50, 57],
-        [68, 50],
-        [17, 20],
-        [50, 12],
-        [83, 20]
-    ],
-
-    "4-2-3-1": [
-        [50, 90],
-        [17, 72],
-        [39, 77],
-        [61, 77],
-        [83, 72],
-        [38, 57],
-        [62, 57],
-        [17, 30],
-        [50, 32],
-        [83, 30],
-        [50, 12]
-    ],
-
-    "4-4-2": [
-        [50, 90],
-        [17, 72],
-        [39, 77],
-        [61, 77],
-        [83, 72],
-        [17, 48],
-        [39, 52],
-        [61, 52],
-        [83, 48],
-        [36, 15],
-        [64, 15]
-    ],
-
-    "3-4-3": [
-        [50, 90],
-        [28, 76],
-        [50, 78],
-        [72, 76],
-        [15, 48],
-        [38, 53],
-        [62, 53],
-        [85, 48],
-        [20, 17],
-        [50, 12],
-        [80, 17]
-    ]
-};
-
 function renderPitch() {
     const pitch = document.getElementById("football-pitch");
 
     if (!pitch) return;
 
-    const starters = game.players.filter(p => p.starter).slice(0, 11);
+    const starters = game.players
+        .filter(p => p.starter)
+        .slice(0, 11);
 
-    const coordinates = formations[currentFormation] || formations["4-3-3"];
+    const positions = formations[currentFormation];
 
     pitch.innerHTML = starters.map((player, index) => {
 
-        const position = coordinates[index] || [50, 50];
+        const position = positions[index] || [50,50];
 
         return `
             <button
                 class="pitch-player"
-                style="left:${position[0]}%;top:${position[1]}%"
+                style="
+                    left:${position[0]}%;
+                    top:${position[1]}%;
+                "
                 onclick="selectPitchPlayer(${player.id})">
 
-                ${player.name.split(" ").slice(-1)[0].slice(0, 7)}
+                ${player.name.split(" ").slice(-1)[0]}
 
             </button>
         `;
@@ -312,26 +347,12 @@ function renderPitch() {
     }).join("");
 }
 
-// تغيير التشكيلة
-document.addEventListener("DOMContentLoaded", () => {
-
-    const formation = document.getElementById("formation");
-
-    if (formation) {
-        formation.addEventListener("change", function() {
-            currentFormation = this.value;
-            renderPitch();
-        });
-    }
-
-});
-
 function selectPitchPlayer(id) {
-
     if (selectedPlayer === null) {
         selectedPlayer = id;
 
-        alert("اختر اللاعب الآخر لتبديل المركز.");
+        alert("اختر اللاعب الآخر لتبديل مكانيهما.");
+
         return;
     }
 
@@ -340,14 +361,14 @@ function selectPitchPlayer(id) {
         return;
     }
 
-    const first = game.players.find(p => p.id === selectedPlayer);
-    const second = game.players.find(p => p.id === id);
+    const player1 = game.players.find(p => p.id === selectedPlayer);
+    const player2 = game.players.find(p => p.id === id);
 
-    if (first && second) {
-        const temp = first.starter;
+    if (player1 && player2) {
+        const temp = player1.starter;
 
-        first.starter = second.starter;
-        second.starter = temp;
+        player1.starter = player2.starter;
+        player2.starter = temp;
     }
 
     selectedPlayer = null;
@@ -356,45 +377,48 @@ function selectPitchPlayer(id) {
     renderSquad();
 }
 
-// إضافة لاعب للتشكيلة
 function addToLineup(id) {
+    const player = game.players.find(p => p.id === id);
+
+    if (!player || player.starter) return;
+
     const starters = game.players.filter(p => p.starter);
 
     if (starters.length >= 11) {
-        alert("التشكيلة مكتملة. أخرج لاعباً أولاً.");
-        return;
+        const outgoing = starters[0];
+
+        if (outgoing) outgoing.starter = false;
     }
 
-    const player = game.players.find(p => p.id === id);
-
-    if (player) {
-        player.starter = true;
-    }
+    player.starter = true;
 
     saveGame();
     renderSquad();
 }
 
-// إخراج لاعب من التشكيلة
 function removeFromLineup(id) {
-    const starters = game.players.filter(p => p.starter);
+    const player = game.players.find(p => p.id === id);
 
-    if (starters.length <= 11) {
-        alert("أخرج لاعباً آخر أولاً أو أضف بديلاً قبل تغيير العدد.");
+    if (!player || !player.starter) return;
+
+    const substitute = game.players.find(p => !p.starter);
+
+    if (!substitute) {
+        alert("لا يوجد لاعب بديل.");
         return;
     }
 
-    const player = game.players.find(p => p.id === id);
-
-    if (player) {
-        player.starter = false;
-    }
+    player.starter = false;
+    substitute.starter = true;
 
     saveGame();
     renderSquad();
 }
 
-// جدول الدوري
+// ========================================
+// الدوري الإسباني
+// ========================================
+
 function renderLeague() {
     const table = document.getElementById("league-table");
 
@@ -404,7 +428,7 @@ function renderLeague() {
 
     table.innerHTML = teams.map((team, index) => {
 
-        let points = index === 0
+        const points = index === 0
             ? game.wins * 3 + game.draws
             : Math.max(0, 30 - index * 2);
 
@@ -418,7 +442,10 @@ function renderLeague() {
     }).join("");
 }
 
+// ========================================
 // دوري الأبطال
+// ========================================
+
 function renderUCL() {
     const container = document.getElementById("ucl-teams");
 
@@ -426,54 +453,49 @@ function renderUCL() {
 
     container.innerHTML = uclTeams.map(team => `
         <div class="panel">
-            <h3>⭐ ${team}</h3>
-            <small>نادي مشارك</small>
+            <h3>${team}</h3>
+            <button onclick="startMatch('${team}','ucl')">
+                مواجهة
+            </button>
         </div>
     `).join("");
 }
 
+// ========================================
 // سوق الانتقالات
-const transferMarket = [
-    {name: "Jude Bellingham", position: "AM", rating: 91, price: 110},
-    {name: "Nico Williams", position: "LW", rating: 87, price: 75},
-    {name: "Erling Haaland", position: "ST", rating: 92, price: 140},
-    {name: "Florian Wirtz", position: "AM", rating: 90, price: 105},
-    {name: "Vitinha", position: "CM", rating: 88, price: 80},
-    {name: "William Saliba", position: "CB", rating: 88, price: 90},
-    {name: "Takefusa Kubo", position: "RW", rating: 85, price: 55},
-    {name: "Mikel Merino", position: "CM", rating: 85, price: 45},
-    {name: "Mohamed Salah", position: "RW", rating: 89, price: 60},
-    {name: "Bukayo Saka", position: "RW", rating: 89, price: 100}
-];
+// ========================================
 
 function renderMarket() {
     const container = document.getElementById("market-players");
 
     if (!container) return;
 
-    container.innerHTML = transferMarket.map((player, index) => {
+    container.innerHTML = marketPlayers.map((player, index) => `
+        <div class="player-card">
 
-        return createPlayerCard(
-            player,
-            `<button onclick="buyPlayer(${index})">شراء اللاعب</button>`
-        );
+            <h3>${player.name}</h3>
 
-    }).join("");
+            <p>${player.position}</p>
+
+            <p>التقييم: ${player.rating}</p>
+
+            <p>السعر: ${player.price}M €</p>
+
+            <button onclick="buyPlayer(${index})">
+                شراء اللاعب
+            </button>
+
+        </div>
+    `).join("");
 }
 
-// شراء لاعب
 function buyPlayer(index) {
-    const player = transferMarket[index];
+    const player = marketPlayers[index];
 
     if (!player) return;
 
     if (game.coins < player.price) {
-        alert("رصيدك لا يكفي لشراء هذا اللاعب.");
-        return;
-    }
-
-    if (game.players.some(p => p.name === player.name)) {
-        alert("هذا اللاعب موجود بالفعل في فريقك.");
+        alert("لا تملك عملات كافية.");
         return;
     }
 
@@ -488,13 +510,14 @@ function buyPlayer(index) {
         form: 7.0
     });
 
+    marketPlayers.splice(index, 1);
+
     saveGame();
     renderAll();
 
-    alert("تم التعاقد مع " + player.name);
+    alert("تم التعاقد مع اللاعب بنجاح!");
 }
 
-// بيع لاعب
 function sellPlayer(id) {
     const player = game.players.find(p => p.id === id);
 
@@ -505,74 +528,70 @@ function sellPlayer(id) {
         return;
     }
 
-    const price = Math.max(1, Math.round(player.price * 0.85));
-
-    game.coins += price;
+    game.coins += Math.max(1, player.price);
 
     game.players = game.players.filter(p => p.id !== id);
 
     saveGame();
     renderAll();
+
+    alert("تم بيع اللاعب.");
 }
 
+// ========================================
 // الأكاديمية
+// ========================================
+
 function renderAcademy() {
     const container = document.getElementById("academy-players");
 
     if (!container) return;
 
-    container.innerHTML = game.academy.map((player, index) => {
+    container.innerHTML = game.academy.map(player => `
+        <div class="player-card">
 
-        return `
-            <div class="player-card">
+            <h3>${player.name}</h3>
 
-                <div class="player-photo">🌱</div>
+            <p>${player.position}</p>
 
-                <div class="player-rating">${player.rating}</div>
+            <p>التقييم: ${player.rating}</p>
 
-                <h3>${player.name}</h3>
+            <button onclick="developYouth(${player.id})">
+                تطوير اللاعب
+            </button>
 
-                <p>${player.position}</p>
+            <button onclick="promotePlayer(${player.id})">
+                تصعيد للفريق
+            </button>
 
-                <button onclick="promotePlayer(${index})">
-                    تصعيد للفريق الأول
-                </button>
-
-                <button onclick="developYouth(${index})">
-                    تطوير اللاعب
-                </button>
-
-            </div>
-        `;
-
-    }).join("");
+        </div>
+    `).join("");
 }
 
-// تطوير لاعب الأكاديمية
-function developYouth(index) {
-    const player = game.academy[index];
+function developYouth(id) {
+    const player = game.academy.find(p => p.id === id);
 
     if (!player) return;
 
-    player.rating += 1;
-    player.price += 1;
+    if (game.coins < 20) {
+        alert("تحتاج إلى 20 عملة.");
+        return;
+    }
+
+    game.coins -= 20;
+
+    player.rating = Math.min(99, player.rating + 2);
 
     saveGame();
     renderAcademy();
 
-    alert("تطور اللاعب وأصبح تقييمه " + player.rating);
+    alert("تم تطوير اللاعب!");
 }
 
-// تصعيد لاعب
-function promotePlayer(index) {
-    const player = game.academy[index];
+function promotePlayer(id) {
+    const player = game.academy.find(p => p.id === id);
 
     if (!player) return;
-
-    if (game.players.length >= 35) {
-        alert("قائمة الفريق ممتلئة.");
-        return;
-    }
 
     game.players.push({
         id: Date.now(),
@@ -583,135 +602,85 @@ function promotePlayer(index) {
         starter: false,
         goals: 0,
         assists: 0,
-        form: 7.0,
-        pace: 70,
-        shooting: 65,
-        passing: 65,
-        dribbling: 65,
-        defending: 60,
-        physical: 65
+        form: 7.0
     });
 
-    game.academy.splice(index, 1);
+    game.academy = game.academy.filter(p => p.id !== id);
 
     saveGame();
     renderAll();
 
-    alert("تم تصعيد اللاعب إلى الفريق الأول.");
+    alert("تم تصعيد اللاعب إلى الفريق الأول!");
 }
 
-// بدء مباراة
-function startMatch(type) {
+// ========================================
+// المباريات
+// ========================================
 
-    if (game.energy < 10) {
-        alert("طاقة الفريق غير كافية.");
+function startMatch(opponent, competition = "league") {
+    if (currentMatch) {
+        alert("هناك مباراة جارية بالفعل.");
         return;
     }
 
-    if (game.players.filter(p => p.starter).length !== 11) {
-        alert("يجب أن تحتوي التشكيلة على 11 لاعباً.");
+    const starters = game.players.filter(p => p.starter);
+
+    if (starters.length !== 11) {
+        alert("يجب أن يكون لديك 11 لاعباً أساسياً.");
+        return;
+    }
+
+    if (game.energy < 10) {
+        alert("لا توجد طاقة كافية لخوض المباراة.");
         return;
     }
 
     game.energy -= 10;
 
-    const opponentList = type === "league"
-        ? laLigaTeams
-        : uclTeams;
-
-    const opponent = opponentList[
-        Math.floor(Math.random() * opponentList.length)
-    ];
-
     currentMatch = {
-        type: type,
         opponent: opponent,
-        goalsFor: 0,
-        goalsAgainst: 0,
+        competition: competition,
+        homeGoals: 0,
+        awayGoals: 0,
         events: [],
-        scorers: [],
-        minute: 0
+        scorers: []
     };
 
     matchMinute = 0;
 
-    const title = document.getElementById("match-title");
+    const title = document.getElementById("match-details");
 
-    title.textContent = type === "league"
-        ? "الدوري الإسباني"
-        : "دوري أبطال أوروبا";
+    if (title) {
+        title.textContent = "Barcelona vs " + opponent;
+    }
 
     const score = document.getElementById("match-score");
 
-    score.innerHTML = `
-        <h1>BAR 0 - 0 ${opponent}</h1>
-        <p id="match-clock">00:00 / 09:00</p>
-    `;
+    if (score) {
+        score.textContent = "Barcelona 0 - 0 " + opponent;
+    }
 
-    document.getElementById("match-details").textContent =
-        "انطلقت المباراة. استعد للمنافسة!";
+    const clock = document.getElementById("match-clock");
 
-    document.getElementById("match-ball").style.left = "50%";
-    document.getElementById("match-ball").style.top = "50%";
+    if (clock) clock.textContent = "0'";
 
-    const substitutes = document.getElementById("substitutes");
+    const map = document.getElementById("match-map");
 
-    substitutes.innerHTML = `
-        <h3>البدلاء</h3>
-        ${game.players.filter(p => !p.starter).map(p => `
-            <div class="row">
-                <span>${p.name} (${p.position})</span>
-                <button onclick="substitutePlayer(${p.id})">إشراك</button>
+    if (map) {
+        map.innerHTML = `
+            <div class="panel">
+                <h2>مباراة برشلونة</h2>
+                <p>المنافس: ${opponent}</p>
+                <p>استعد للمباراة!</p>
             </div>
-        `).join("")}
-    `;
+        `;
+    }
 
     saveGame();
     showPage("match");
 }
 
-// دكة البدلاء
-function toggleBench() {
-    document.getElementById("substitutes").classList.toggle("hidden");
-}
-
-// تبديل اللاعبين
-function substitutePlayer(id) {
-
-    const incoming = game.players.find(p => p.id === id);
-
-    if (!incoming || incoming.starter) return;
-
-    const outgoingName = prompt(
-        "اكتب اسم اللاعب الأساسي الذي تريد إخراجه:"
-    );
-
-    if (!outgoingName) return;
-
-    const outgoing = game.players.find(p =>
-        p.starter &&
-        p.name.toLowerCase().includes(outgoingName.toLowerCase())
-    );
-
-    if (!outgoing) {
-        alert("لم يتم العثور على اللاعب.");
-        return;
-    }
-
-    outgoing.starter = false;
-    incoming.starter = true;
-
-    saveGame();
-
-    document.getElementById("match-details").textContent =
-        "تم تبديل " + outgoing.name + " بـ " + incoming.name;
-
-    toggleBench();
-}
-
-// محاكاة أحداث المباراة
 function advanceMatch() {
-
     if (!currentMatch) return;
 
     if (matchMinute >= 9) {
@@ -721,137 +690,192 @@ function advanceMatch() {
 
     matchMinute++;
 
-    currentMatch.minute = matchMinute;
+    const strength = getTeamRating() + getChemistry() / 5;
 
-    const power = getTeamRating();
-    const chemistry = getChemistry();
+    const opponentStrength = 78 + Math.random() * 15;
 
-    const chance = Math.random() * 100;
+    const homeChance = Math.random() * strength / 100;
+    const awayChance = Math.random() * opponentStrength / 150;
 
-    let event = "تمريرات متبادلة في وسط الملعب.";
-
-    if (chance < 13 + (power + chemistry) / 18) {
-
-        currentMatch.goalsFor++;
+    if (homeChance > 0.65) {
+        currentMatch.homeGoals++;
 
         const scorers = game.players.filter(p => p.starter);
 
-        const scorer = scorers[
-            Math.floor(Math.random() * scorers.length)
-        ];
+        if (scorers.length) {
+            const scorer = scorers[
+                Math.floor(Math.random() * scorers.length)
+            ];
 
-        scorer.goals++;
+            scorer.goals++;
 
-        currentMatch.scorers.push(scorer.name);
+            currentMatch.scorers.push(scorer.name);
 
-        event = "⚽ هدف لبرشلونة! سجّل " + scorer.name;
-
-    } else if (chance > 88) {
-
-        currentMatch.goalsAgainst++;
-
-        event = "⚽ هدف للفريق المنافس!";
-
-    } else if (chance > 65) {
-
-        event = "هجمة خطيرة لبرشلونة.";
-
-    } else if (chance > 45) {
-
-        event = "فرصة للفريق المنافس.";
-
+            currentMatch.events.push(
+                matchMinute + "' هدف لبرشلونة - " + scorer.name
+            );
+        }
     }
 
-    currentMatch.events.push(event);
+    if (awayChance > 0.78) {
+        currentMatch.awayGoals++;
+
+        currentMatch.events.push(
+            matchMinute + "' هدف للمنافس"
+        );
+    }
 
     const score = document.getElementById("match-score");
 
-    score.innerHTML = `
-        <h1>
-            BAR ${currentMatch.goalsFor}
-            -
-            ${currentMatch.goalsAgainst}
-            ${currentMatch.opponent}
-        </h1>
+    if (score) {
+        score.textContent =
+            "Barcelona " +
+            currentMatch.homeGoals +
+            " - " +
+            currentMatch.awayGoals +
+            " " +
+            currentMatch.opponent;
+    }
 
-        <p>
-            ${String(matchMinute).padStart(2, "0")}:00 / 09:00
-        </p>
-    `;
+    const clock = document.getElementById("match-clock");
 
-    document.getElementById("match-details").textContent = event;
+    if (clock) clock.textContent = matchMinute * 10 + "'";
 
-    const ball = document.getElementById("match-ball");
+    const details = document.getElementById("match-details");
 
-    ball.style.left = Math.random() * 85 + 7 + "%";
-    ball.style.top = Math.random() * 75 + 10 + "%";
+    if (details) {
+        details.innerHTML = currentMatch.events.length
+            ? currentMatch.events.map(e => `<p>${e}</p>`).join("")
+            : "المباراة مستمرة...";
+    }
 
     if (matchMinute >= 9) {
-        document.querySelector("#match button.main-button").textContent =
-            "إنهاء المباراة";
+        finishMatch();
     }
 }
 
-// نهاية المباراة
-function finishMatch() {
+function toggleBench() {
+    const bench = document.getElementById("substitutes");
 
+    if (!bench) return;
+
+    bench.style.display =
+        bench.style.display === "none" ? "block" : "none";
+
+    bench.innerHTML = game.players
+        .filter(p => !p.starter)
+        .map(p => `
+            <button onclick="substitutePlayer(${p.id})">
+                ${p.name}
+            </button>
+        `).join("");
+}
+
+function substitutePlayer(id) {
+    const incoming = game.players.find(p => p.id === id);
+
+    if (!incoming || incoming.starter) return;
+
+    const starters = game.players.filter(p => p.starter);
+
+    const outgoing = prompt(
+        "اكتب اسم اللاعب الأساسي الذي تريد إخراجه:\n" +
+        starters.map(p => p.name).join("\n")
+    );
+
+    if (!outgoing) return;
+
+    const player = starters.find(
+        p => p.name.toLowerCase() === outgoing.toLowerCase()
+    );
+
+    if (!player) {
+        alert("لم يتم العثور على اللاعب.");
+        return;
+    }
+
+    player.starter = false;
+    incoming.starter = true;
+
+    saveGame();
+    renderSquad();
+    toggleBench();
+}
+
+// ========================================
+// نهاية المباراة
+// ========================================
+
+function finishMatch() {
     if (!currentMatch) return;
 
-    const goals = currentMatch.goalsFor;
-    const against = currentMatch.goalsAgainst;
+    const home = currentMatch.homeGoals;
+    const away = currentMatch.awayGoals;
 
     game.played++;
 
-    if (goals > against) {
+    if (home > away) {
         game.wins++;
-        game.coins += 80;
-    } else if (goals === against) {
+        game.coins += 100;
+    } else if (home === away) {
         game.draws++;
-        game.coins += 35;
+        game.coins += 50;
     } else {
         game.losses++;
-        game.coins += 15;
+        game.coins += 25;
     }
 
-    // تحديث تقييم اللاعبين
-    game.players.filter(p => p.starter).forEach(player => {
+    game.players.forEach(player => {
+        if (player.starter) {
+            player.form = Math.min(
+                10,
+                Math.max(5, Number(player.form || 7) + (Math.random() - 0.4))
+            );
 
-        const change = Math.random() > 0.5 ? 1 : -1;
-
-        player.rating = Math.max(
-            40,
-            Math.min(99, player.rating + change)
-        );
-
-        player.form = Math.min(
-            10,
-            Math.max(5, (player.form || 7) + change * 0.2)
-        );
-
-        player.price = Math.max(
-            1,
-            Math.round(player.price * (1 + change * 0.015))
-        );
-
+            if (player.form >= 8.5 && Math.random() > 0.7) {
+                player.rating = Math.min(99, player.rating + 1);
+                player.price += 2;
+            }
+        }
     });
 
-    document.getElementById("final-score").textContent =
-        "BAR " + goals + " - " + against + " " + currentMatch.opponent;
+    const finalScore = document.getElementById("final-score");
 
-    const bestPlayer = game.players
-        .filter(p => p.starter)
-        .sort((a, b) => b.rating - a.rating)[0];
+    if (finalScore) {
+        finalScore.textContent =
+            "Barcelona " + home + " - " + away + " " +
+            currentMatch.opponent;
+    }
 
-    document.getElementById("match-star").textContent =
-        bestPlayer ? bestPlayer.name : "برشلونة";
+    const star = document.getElementById("match-star");
 
-    document.getElementById("match-scorers").textContent =
-        currentMatch.scorers.length
-        ? "مسجلو الأهداف: " + currentMatch.scorers.join("، ")
-        : "لم يسجل برشلونة أهدافاً.";
+    if (star) {
+        const best = [...game.players]
+            .filter(p => p.starter)
+            .sort((a,b) => b.form - a.form)[0];
 
-    document.getElementById("training-content").innerHTML =
-        "<p>اختر لاعباً ومهارة لتطويرها بعد المباراة.</p>";
+        star.textContent = best
+            ? "نجم المباراة: " + best.name
+            : "نجم المباراة: Barcelona";
+    }
+
+    const scorers = document.getElementById("match-scorers");
+
+    if (scorers) {
+        scorers.innerHTML = currentMatch.scorers.length
+            ? currentMatch.scorers.map(name => `<p>⚽ ${name}</p>`).join("")
+            : "<p>لم يسجل برشلونة أهدافاً.</p>";
+    }
+
+    const details = document.getElementById("match-details");
+
+    if (details) {
+        details.innerHTML = `
+            <p>المسابقة: ${currentMatch.competition}</p>
+            <p>الأحداث:</p>
+            ${currentMatch.events.map(e => `<p>${e}</p>`).join("")}
+        `;
+    }
 
     saveGame();
 
@@ -860,70 +884,13 @@ function finishMatch() {
     showPage("result");
 }
 
+// ========================================
 // التدريب
-function renderTraining() {
+// ========================================
 
+function renderTraining() {
     const container = document.getElementById("training-content");
 
     if (!container) return;
 
-    container.innerHTML = `
-        <p>اختر أحد لاعبي الفريق لتطوير مهارة محددة.</p>
-
-        <select id="training-player">
-            ${game.players.map(p => `
-                <option value="${p.id}">${p.name}</option>
-            `).join("")}
-        </select>
-
-        <select id="training-skill">
-            <option value="passing">التمرير</option>
-            <option value="shooting">التسديد</option>
-            <option value="pace">السرعة</option>
-            <option value="dribbling">المراوغة</option>
-            <option value="defending">الدفاع</option>
-            <option value="physical">القوة البدنية</option>
-        </select>
-
-        <button onclick="trainPlayer()">بدء التدريب</button>
-    `;
-}
-
-function trainPlayer() {
-    const id = Number(document.getElementById("training-player").value);
-    const skill = document.getElementById("training-skill").value;
-
-    const player = game.players.find(p => p.id === id);
-
-    if (!player) {
-        alert("لم يتم العثور على اللاعب");
-        return;
-    }
-
-    if (game.coins < 50) {
-        alert("لا تملك عملات كافية للتدريب");
-        return;
-    }
-
-    game.coins -= 50;
-    player[skill] = Math.min(99, (player[skill] || 0) + 2);
-
-    saveGame();
-    renderAll();
-
-    alert("تم تطوير مهارة " + player.name + " بنجاح!");
-}
-
-// تشغيل اللعبة
-document.addEventListener("DOMContentLoaded", function () {
-    loadGame();
-    renderAll();
-
-    setTimeout(function () {
-        const loading = document.getElementById("loading-screen");
-
-        if (loading) {
-            loading.style.display = "none";
-        }
-    }, 2000);
-});
+    container.inne
