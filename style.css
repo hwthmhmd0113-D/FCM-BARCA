@@ -616,3 +616,10 @@ footer small {
         height: 260px;
     }
         }
+/* إلغاء شاشة التحميل نهائياً */
+#loading-screen {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
