@@ -2,89 +2,309 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#07152e">
-    <title>FCM BARCA - BY HWTA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#071326">
+
+    <title>FCM BARCA | BY HWTA</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div id="loading-screen">
-    <div class="loading-content">
-        <h1>FCM <span>BARCA</span></h1>
-        <div class="loader"></div>
-        <p>FOOTBALL CAREER MANAGER</p>
-        <small>CREATED BY HWTA</small>
+    <!-- شاشة التحميل -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">FCM</div>
+            <h1>FCM BARCA</h1>
+            <p>FOOTBALL CAREER MANAGER</p>
+            <div class="loading-line">
+                <div></div>
+            </div>
+            <small>CREATED BY HWTA</small>
+        </div>
     </div>
-</div>
 
-<div id="game">
+    <!-- رأس اللعبة -->
+    <header class="top-header">
+        <div class="brand">
+            <span>🔵🔴</span>
+            <div>
+                <h2>FCM BARCA</h2>
+                <small>BY HWTA</small>
+            </div>
+        </div>
 
-    <header class="top-bar">
-        <div class="logo">FCM <span>BARCA</span></div>
-        <div class="club-name">🔵🔴 FC BARCELONA</div>
-        <div class="coins">🪙 <span id="coins">1000000</span></div>
+        <div class="resources">
+            <span>🪙 <b id="coins">500</b></span>
+            <span>⚡ <b id="energy">100</b></span>
+        </div>
     </header>
+
+    <!-- التنقل -->
+    <nav class="navigation">
+        <button onclick="showPage('home')">الرئيسية</button>
+        <button onclick="showPage('squad')">التشكيلة</button>
+        <button onclick="showPage('league')">الليغا</button>
+        <button onclick="showPage('ucl')">الأبطال</button>
+        <button onclick="showPage('market')">الانتقالات</button>
+        <button onclick="showPage('academy')">الأكاديمية</button>
+    </nav>
 
     <main>
 
-        <section class="hero">
-            <div class="hero-content">
-                <p>MES QUE UN CLUB</p>
-                <h1>FC BARCELONA</h1>
-                <h2>2026 / 2027</h2>
-                <button onclick="openPage('squad')">إدارة الفريق</button>
+        <!-- الصفحة الرئيسية -->
+        <section id="home" class="page active">
+
+            <div class="hero">
+
+                <div class="hero-content">
+                    <p class="season">SEASON 2026 / 2027</p>
+
+                    <h1>MES QUE UN CLUB</h1>
+
+                    <p>
+                        مرحباً بك في عالم إدارة برشلونة.
+                        ابنِ فريق الأحلام ونافس على جميع البطولات.
+                    </p>
+
+                    <div class="hero-buttons">
+                        <button onclick="startMatch('league')">
+                            ⚽ مباراة الليغا
+                        </button>
+
+                        <button onclick="startMatch('ucl')">
+                            ⭐ دوري الأبطال
+                        </button>
+                    </div>
+                </div>
+
             </div>
-        </section>
 
-        <section class="competitions">
-            <h2>البطولات</h2>
+            <div class="dashboard">
 
-            <div class="competition-grid">
-                <button onclick="openPage('laliga')">
-                    🏆
-                    <span>الدوري الإسباني</span>
-                </button>
+                <div class="dashboard-card">
+                    <span>قوة الفريق</span>
+                    <h2 id="team-rating">87</h2>
+                </div>
 
-                <button onclick="openPage('ucl')">
-                    🌟
-                    <span>دوري أبطال أوروبا</span>
-                </button>
+                <div class="dashboard-card">
+                    <span>التناغم</span>
+                    <h2 id="chemistry">85%</h2>
+                </div>
+
+                <div class="dashboard-card">
+                    <span>الموسم</span>
+                    <h2>2026/27</h2>
+                </div>
+
             </div>
-        </section>
 
-        <section class="menu">
-            <h2>إدارة النادي</h2>
+            <h2 class="section-title">عالم برشلونة</h2>
 
             <div class="menu-grid">
-                <button onclick="openPage('squad')">👥<span>التشكيلة</span></button>
-                <button onclick="openPage('transfers')">🔄<span>الانتقالات</span></button>
-                <button onclick="openPage('academy')">🌱<span>الأكاديمية</span></button>
-                <button onclick="openPage('training')">⚽<span>التدريب</span></button>
-                <button onclick="openPage('rewards')">🏅<span>الجوائز</span></button>
-                <button onclick="openPage('coupons')">🎁<span>القسائم</span></button>
+
+                <button onclick="showPage('squad')">
+                    👥
+                    <b>التشكيلة</b>
+                    <small>إدارة اللاعبين</small>
+                </button>
+
+                <button onclick="showPage('league')">
+                    🇪🇸
+                    <b>الدوري الإسباني</b>
+                    <small>المنافسة المحلية</small>
+                </button>
+
+                <button onclick="showPage('ucl')">
+                    ⭐
+                    <b>دوري الأبطال</b>
+                    <small>المنافسة الأوروبية</small>
+                </button>
+
+                <button onclick="showPage('market')">
+                    🔄
+                    <b>سوق الانتقالات</b>
+                    <small>شراء وبيع اللاعبين</small>
+                </button>
+
+                <button onclick="showPage('academy')">
+                    🌱
+                    <b>الأكاديمية</b>
+                    <small>تطوير المواهب</small>
+                </button>
+
+                <button onclick="showPage('rewards')">
+                    🎁
+                    <b>القسائم والجوائز</b>
+                    <small>المكافآت اليومية</small>
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- التشكيلة -->
+        <section id="squad" class="page">
+            <h2 class="section-title">تشكيلة برشلونة</h2>
+
+            <div class="panel">
+                <div class="squad-top">
+                    <h3>الفريق الأول</h3>
+
+                    <select id="formation">
+                        <option>4-3-3</option>
+                        <option>4-2-3-1</option>
+                        <option>4-4-2</option>
+                        <option>3-4-3</option>
+                    </select>
+                </div>
+
+                <div id="football-pitch" class="football-pitch"></div>
+
+                <p class="hint">
+                    اضغط على لاعب ثم اضغط على لاعب آخر لتبديل موقعيهما.
+                </p>
+
+                <h3>بطاقات اللاعبين</h3>
+
+                <div id="players-list" class="players-grid"></div>
+            </div>
+
+        </section>
+
+        <!-- الدوري الإسباني -->
+        <section id="league" class="page">
+            <h2 class="section-title">🇪🇸 الدوري الإسباني</h2>
+
+            <div class="panel">
+                <h3>جدول الدوري</h3>
+                <div id="league-table"></div>
+
+                <button class="main-button"
+                    onclick="startMatch('league')">
+                    بدء مباراة الدوري
+                </button>
+            </div>
+        </section>
+
+        <!-- دوري الأبطال -->
+        <section id="ucl" class="page">
+            <h2 class="section-title">⭐ دوري أبطال أوروبا</h2>
+
+            <div class="panel">
+                <h3>الأندية المشاركة</h3>
+                <div id="ucl-teams" class="menu-grid"></div>
+
+                <button class="main-button"
+                    onclick="startMatch('ucl')">
+                    بدء مباراة دوري الأبطال
+                </button>
+            </div>
+        </section>
+
+        <!-- الانتقالات -->
+        <section id="market" class="page">
+            <h2 class="section-title">سوق الانتقالات</h2>
+
+            <div class="panel">
+                <p>تعاقد مع لاعبين جدد لتقوية فريقك.</p>
+                <div id="market-players" class="players-grid"></div>
+            </div>
+        </section>
+
+        <!-- الأكاديمية -->
+        <section id="academy" class="page">
+            <h2 class="section-title">أكاديمية برشلونة</h2>
+
+            <div class="panel">
+                <p>اكتشف المواهب الشابة وطوّرها ثم صعّدها للفريق الأول.</p>
+                <div id="academy-players" class="players-grid"></div>
+            </div>
+        </section>
+
+        <!-- التدريب -->
+        <section id="training" class="page">
+            <h2 class="section-title">مركز التدريب</h2>
+
+            <div class="panel">
+                <div id="training-content"></div>
+            </div>
+        </section>
+
+        <!-- الجوائز -->
+        <section id="rewards" class="page">
+            <h2 class="section-title">القسائم والجوائز</h2>
+
+            <div class="panel">
+                <h3>🎁 مكافأة الدخول اليومي</h3>
+                <button onclick="dailyReward()">احصل على قسيمتك</button>
+
+                <h3>🎡 عجلة الأساطير</h3>
+                <button onclick="spinWheel()">لف العجلة</button>
+
+                <p id="reward-message"></p>
+                <p>عدد القسائم: <b id="coupon-count">0</b></p>
+            </div>
+        </section>
+
+        <!-- شاشة المباراة -->
+        <section id="match" class="page">
+            <h2 class="section-title" id="match-title">المباراة</h2>
+
+            <div class="panel match-panel">
+
+                <div id="match-score">
+                    <h1>BAR 0 - 0 OPP</h1>
+                    <p id="match-clock">00:00 / 09:00</p>
+                </div>
+
+                <div id="match-map" class="match-map">
+                    <span id="match-ball">⚽</span>
+                </div>
+
+                <div id="match-details">
+                    تفاصيل المباراة ستظهر هنا.
+                </div>
+
+                <button onclick="toggleBench()">
+                    ⬆ دكة البدلاء
+                </button>
+
+                <div id="substitutes" class="hidden"></div>
+
+                <button class="main-button" onclick="advanceMatch()">
+                    تقدم المباراة
+                </button>
+
+            </div>
+        </section>
+
+        <!-- نتيجة المباراة -->
+        <section id="result" class="page">
+            <h2 class="section-title">نتيجة المباراة</h2>
+
+            <div class="panel result-panel">
+                <h1 id="final-score">BAR 0 - 0 OPP</h1>
+                <h3>⭐ نجم المباراة</h3>
+                <div id="match-star"></div>
+                <div id="match-scorers"></div>
+
+                <button onclick="showPage('home')">
+                    العودة للرئيسية
+                </button>
             </div>
         </section>
 
     </main>
 
     <footer>
-        FCM BARCA © 2026
-        <br>
-        DEVELOPED BY HWTA
+        <p>FCM BARCA</p>
+        <small>DESIGNED & DEVELOPED BY HWTA</small>
     </footer>
 
-</div>
-
-<div id="page-screen" class="hidden">
-    <button class="back-button" onclick="goHome()">← العودة</button>
-    <h1 id="page-title"></h1>
-    <div id="page-content"></div>
-</div>
-
-<script src="players.js"></script>
-<script src="game.js"></script>
+    <script src="players.js"></script>
+    <script src="game.js"></script>
 
 </body>
-  </html>
+</html>
