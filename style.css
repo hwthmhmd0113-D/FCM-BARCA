@@ -1,0 +1,335 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+
+:root {
+    --navy: #07152e;
+    --blue: #0755a5;
+    --red: #a50044;
+    --gold: #f5c542;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--navy);
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    color: white;
+}
+
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #06142b, #092e65, #71002d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: fadeOut 1s ease 2.5s forwards;
+}
+
+.loading-content h1 {
+    font-size: 55px;
+    font-weight: 900;
+    letter-spacing: 3px;
+}
+
+.loading-content h1 span {
+    color: var(--gold);
+}
+
+.loading-content p {
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-top: 15px;
+}
+
+.loading-content small {
+    display: block;
+    color: var(--gold);
+    margin-top: 25px;
+}
+
+.loader {
+    width: 160px;
+    height: 4px;
+    background: #ffffff30;
+    margin: 25px auto;
+    overflow: hidden;
+    position: relative;
+}
+
+.loader::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 45%;
+    background: var(--gold);
+    animation: loading 1s infinite;
+}
+
+@keyframes loading {
+    from { left: -45%; }
+    to { left: 100%; }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+#game {
+    max-width: 1500px;
+    margin: auto;
+    padding: 12px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #101f3b;
+    padding: 12px 20px;
+    border-bottom: 2px solid var(--gold);
+    border-radius: 10px;
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.logo span {
+    color: var(--gold);
+}
+
+.club-name {
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.coins {
+    background: #263956;
+    padding: 7px 15px;
+    border-radius: 20px;
+    color: var(--gold);
+    font-weight: bold;
+}
+
+.hero {
+    min-height: 280px;
+    margin-top: 15px;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    background:
+        linear-gradient(90deg, #06142be8, #06142b65),
+        linear-gradient(135deg, #092e65, #a50044);
+    display: flex;
+    align-items: center;
+    padding: 35px;
+    border: 1px solid #ffffff20;
+}
+
+.hero::after {
+    content: "FC BARCELONA";
+    position: absolute;
+    left: 5%;
+    bottom: -15px;
+    font-size: clamp(35px, 8vw, 100px);
+    font-weight: 900;
+    color: #ffffff0b;
+    white-space: nowrap;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content p {
+    color: var(--gold);
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.hero-content h1 {
+    font-size: clamp(28px, 5vw, 55px);
+    font-weight: 900;
+}
+
+.hero-content h2 {
+    color: #c5d7f3;
+    margin-bottom: 15px;
+}
+
+.hero-content button {
+    background: var(--gold);
+    color: #07152e;
+    font-weight: 900;
+    padding: 12px 30px;
+    border-radius: 7px;
+    transition: .2s;
+}
+
+.hero-content button:active {
+    transform: scale(.95);
+}
+
+.competitions,
+.menu {
+    margin-top: 25px;
+}
+
+.competitions h2,
+.menu h2 {
+    font-size: 20px;
+    margin-bottom: 13px;
+    border-right: 4px solid var(--gold);
+    padding-right: 10px;
+}
+
+.competition-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.competition-grid button {
+    min-height: 105px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #104b91, #092447);
+    border: 1px solid #ffffff25;
+    font-size: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: bold;
+}
+
+.competition-grid button:last-child {
+    background: linear-gradient(135deg, #243b6b, #111a39);
+}
+
+.competition-grid span {
+    font-size: 14px;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.menu-grid button {
+    min-height: 95px;
+    border-radius: 12px;
+    background: #142746;
+    border: 1px solid #ffffff18;
+    font-size: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    transition: .2s;
+}
+
+.menu-grid button:active {
+    background: var(--red);
+    transform: scale(.96);
+}
+
+.menu-grid span {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #8496b2;
+    font-size: 12px;
+}
+
+#page-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    overflow-y: auto;
+    background: #07152e;
+    padding: 25px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.back-button {
+    background: var(--red);
+    padding: 10px 22px;
+    border-radius: 7px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+#page-title {
+    color: var(--gold);
+    margin-bottom: 20px;
+}
+
+@media (orientation: landscape) {
+    #game {
+        padding: 10px 25px;
+    }
+
+    .hero {
+        min-height: 220px;
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .competition-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .club-name {
+        font-size: 10px;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .top-bar {
+        padding: 10px;
+    }
+
+    .coins {
+        font-size: 11px;
+        padding: 6px 9px;
+    }
+  }
